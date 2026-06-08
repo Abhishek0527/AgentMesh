@@ -7,27 +7,39 @@ load_dotenv()
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 
-def generate_reponse(query,context):
+def generate_reponse(query, context=None):
 
     if context is None:
-        return "No relevant information found."
+
+        response = client.messages.create(
+            model="claude-haiku-4-5",
+            max_tokens=1000,
+            messages=[
+                {
+                    "role": "user",
+                    "content": query
+                }
+            ]
+        )
+
+        return response.content[0].text
 
     context_text = "\n\n".join(context)
-    
+
     prompt = f"""
-        Answer the question in maximum 3 sentences.
+    Answer the question in maximum 3 sentences.
 
-        Use only the provided context.
+    Use provided context as well as your input abhout the query to generate the response.
 
-        If the answer is not in the context, say:
-        "I could not find relevant information."
+    If the answer is not in the context, say:
+    "I could not find relevant information."
 
-        Context:
-        {context_text}
+    Context:
+    {context_text}
 
-        Question:
-        {query}
-        """
+    Question:
+    {query}
+    """
 
     response = client.messages.create(
         model="claude-haiku-4-5",
@@ -39,13 +51,13 @@ def generate_reponse(query,context):
             }
         ]
     )
+
     return response.content[0].text
 
-    
 
 
 
-    
-    
-    
-    
+
+
+
+

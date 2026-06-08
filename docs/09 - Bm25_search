@@ -1,0 +1,94 @@
+# 09 - BM25 Search in RAG
+
+BM25 (Best Matching 25) is a keyword-based retrieval algorithm used to rank documents based on exact word matching.
+
+Unlike embeddings, BM25 does not understand semantic meaning.
+
+It focuses on:
+* **Term Frequency**
+* **Inverse Document Frequency**
+* **Length Normalization**
+
+---
+
+## 💡 Why Do We Need BM25?
+
+Embeddings are good at understanding meaning.
+
+### Example:
+> **manage state**
+
+can retrieve:
+> **useState Hook**
+
+even if exact words are absent.
+
+However, embeddings often struggle with:
+* `JWT_SECRET`
+* `API_KEY`
+* Error Codes
+* Function Names
+
+These require exact matching.
+
+BM25 solves this problem.
+
+---
+
+## ⚙️ How BM25 Works
+
+### Term Frequency (TF)
+Measures how often a word appears in a document.
+
+### Inverse Document Frequency (IDF)
+Measures how rare a word is across the corpus. Rare terms receive higher importance.
+
+### Length Normalization
+Prevents long documents from always receiving higher scores.
+
+### Example
+
+* **Query**: `JWT_SECRET`
+* **Document A**: `JWT_SECRET` appears 3 times
+* **Document B**: `JWT_SECRET` appears 0 times
+
+Document A receives a higher score.
+
+---
+
+## ⚖️ BM25 vs Embeddings
+
+| BM25 | Embeddings |
+| :--- | :--- |
+| Keyword Search | Semantic Search |
+| Exact Match | Meaning Match |
+| Fast | Slower |
+| No Embeddings Required | Requires Embeddings |
+
+---
+
+## 🛠️ Project Implementation
+
+```mermaid
+graph TD
+    FD[Filtered Documents] --> Tokenization[Tokenization]
+    Tokenization --> Scoring[BM25 Scoring]
+    Scoring --> TopK[Top K Chunks]
+```
+
+---
+
+## ❓ Interview Questions
+
+1. What is BM25?
+2. What are TF and IDF?
+3. Why does BM25 still matter in RAG?
+4. BM25 vs Embeddings?
+5. What types of queries benefit from BM25?
+
+---
+
+## 🎯 Key Takeaway
+
+> [!TIP]
+> **BM25 excels at exact keyword matching while embeddings excel at semantic retrieval.**

@@ -232,5 +232,108 @@ Pending:
 * Conversation Memory
 * LangGraph Integration
 
+# Advanced RAG - Re-ranking
+
+## Objective
+
+Improve retrieval quality by introducing a re-ranking stage between vector search and LLM generation.
+
+## Previous Flow
+
+Query
+↓
+Vector Search
+↓
+Top 3 Chunks
+↓
+LLM
+↓
+Answer
+
+## Problem
+
+Vector similarity search optimizes for semantic similarity but does not always place the best answer at the top.
+
+A highly relevant chunk may appear lower in the retrieval results.
+
+## New Flow
+
+Query
+↓
+Vector Search
+↓
+Top 10 Chunks
+↓
+Re-ranker
+↓
+Top 3 Chunks
+↓
+LLM
+↓
+Answer
+
+## Key Concepts
+
+### Recall
+
+Recall measures whether relevant chunks are retrieved.
+
+Vector search is optimized for recall.
+
+Goal:
+Do not miss relevant information.
+
+### Precision
+
+Precision measures how relevant the top retrieved chunks are.
+
+Re-ranking is optimized for precision.
+
+Goal:
+Place the best chunks at the top.
+
+## Re-ranker
+
+Model:
+cross-encoder/ms-marco-MiniLM-L-6-v2
+
+The re-ranker evaluates:
+
+(Query, Chunk)
+
+pairs and assigns a relevance score.
+
+Example:
+
+Query:
+"What is useState?"
+
+Chunk:
+"useState is a React Hook used to manage local component state."
+
+Score:
+0.98
+
+Higher score = More relevant.
+
+## Benefits
+
+* Better answer quality
+* Reduced context noise
+* Lower token usage
+* Improved precision
+
+## Learning
+
+Vector Search:
+Candidate Generator
+
+Re-ranker:
+Candidate Judge
+
+Vector Search maximizes Recall.
+Re-ranking maximizes Precision.
+
+
 ```
 ```

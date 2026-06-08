@@ -1,0 +1,100 @@
+# 10_hybrid_search.md
+
+## 🔍 What is Hybrid Search?
+
+Hybrid Search combines:
+* **BM25**
+* **Vector Search**
+
+to improve retrieval quality.
+
+---
+
+## 💡 Why Hybrid Search?
+
+Each retrieval method has weaknesses.
+
+### BM25
+* **Good**:
+  * `JWT_SECRET`
+  * `API_KEY`
+  * Error Codes
+* **Bad**:
+  * Meaning Understanding
+
+### Embeddings
+* **Good**:
+  * Semantic Similarity
+* **Bad**:
+  * Exact Keywords
+
+Combining both improves recall.
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    Query[Query] --> BM25[BM25 Search]
+    Query --> Vector[Vector Search]
+    BM25 --> Merge[Merge Results]
+    Vector --> Merge
+    Merge --> Deduplicate[Deduplicate]
+    Deduplicate --> Rerank[Re-rank]
+    Rerank --> Top[Top Chunks]
+```
+
+---
+
+## ❓ Why Merge Results?
+
+Some relevant chunks may only appear in BM25.
+
+Others may only appear in Vector Search.
+
+Merging prevents information loss.
+
+---
+
+## ❓ Why Re-rank After Merge?
+
+Merged results may contain irrelevant chunks.
+
+Cross Encoder selects the best candidates.
+
+---
+
+## 🔄 Project Flow
+
+```mermaid
+graph TD
+    subgraph Vector Search Path
+        QV[Query] --> VS[Vector Search] --> Top10V[Top 10]
+    end
+
+    subgraph BM25 Search Path
+        QB[Query] --> BM[BM25 Search] --> Top10B[Top 10]
+    end
+
+    Top10V --> Merge[Merge]
+    Top10B --> Merge
+    
+    Merge --> Deduplicate[Deduplicate] --> Rerank[Re-rank] --> Top3[Top 3]
+```
+
+---
+
+## ❓ Interview Questions
+
+1. What is Hybrid Search?
+2. Why combine BM25 and Vector Search?
+3. What problem does Hybrid Search solve?
+4. Why is Re-ranking important after Hybrid Search?
+
+---
+
+## 🎯 Key Takeaway
+
+> [!TIP]
+> **Hybrid Search improves recall by combining semantic and keyword retrieval.**

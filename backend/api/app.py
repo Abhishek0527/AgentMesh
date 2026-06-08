@@ -1,3 +1,6 @@
+from transformers.models.swiftformer import configuration_swiftformer
+from rag.hybrid_retriver import hybrid_retrieve
+from rag.reranker import rerank_documents
 from rag.generator import generate_reponse
 from rag.retreiver import retrieve_document
 from fastapi import FastAPI
@@ -16,12 +19,39 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     query:str
+    source:str
 
 @app.post("/chat")
 def chat(req:ChatRequest):
     print("Request received:", req.query)
     query = req.query
-    result = retrieve_document(query)
-    answer = generate_reponse(query,result)
-    return {"response":answer}
+    source = req.source
 
+    retrieved_docs = hybrid_retrieve(
+        query,
+        source
+    )
+
+    reranked, top_score = rerank_documents(
+        query,
+        retrieved_docs
+    )
+
+    if top_score < 0:
+
+        print("General LLM Mode")
+
+        answer = generate_reponse(
+        query
+    )
+
+    else:
+
+        print("RAG Mode")
+
+        answer = generate_reponse(
+            query,
+            reranked
+        )
+
+    return {"response": answer}

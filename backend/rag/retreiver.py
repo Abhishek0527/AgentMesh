@@ -1,7 +1,7 @@
 from rag.embedding import embed_query
 import chromadb
 
-def  retrieve_document(query:str):
+def  retrieve_document(query:str, source:str):
     client = chromadb.PersistentClient(path="./chroma_db")
 
     collection = client.get_or_create_collection(name="pdf_collection")
@@ -10,20 +10,31 @@ def  retrieve_document(query:str):
 
     retrieved = collection.query(
         query_embeddings=[query_embedding],
-        n_results=3
+        n_results=10,
+        where={
+            "source": source
+        }
     )
-    print("Query:", query)
-    print("Distance:", retrieved["distances"][0][0])
 
-    best_decison = retrieved["distances"][0][0]
+    print("Vector Source:", source)
+    print("Retrieved Chunks:", len(retrieved["documents"][0]))
 
-    Threeshold = 1.5
+    return retrieved["documents"][0]
 
-    if best_decison > Threeshold:
-        return None
-    else:
-        return retrieved["documents"][0]
-    
+    # print(retrieved["metadatas"])
+
+    # print("Query:", query)
+    # # print("Distance:", retrieved["distances"][0][0])
+
+    # best_decison = retrieved["distances"][0][0]
+
+    # Threeshold = 1.5
+
+    # if best_decison > Threeshold:
+    #     return None
+    # else:
+    #     return retrieved["documents"][0]
+
     # return retrieved['distances']
     # return retrieved["documents"][0]
 
