@@ -1,4 +1,5 @@
 from rank_bm25 import BM25Okapi
+from rag.types import RetrievedChunk
 import chromadb
 
 
@@ -13,15 +14,17 @@ collection = client.get_or_create_collection(
 
 def bm25_retrieve(
     query: str,
-    source: str,
     top_k: int = 10
 ):
 
-    filtered_docs = collection.get(
-        where={
-            "source": source
-        }
-    )["documents"]
+    retrieved = collection.get(
+        include=["documents", "metadatas"]
+    )
+    filtered_docs = retrieved["documents"]
+    filtered_metadatas = retrieved["metadatas"]
+
+    if not filtered_docs:
+        return []
 
     tokenized_docs = [
         doc.lower().split()
@@ -37,17 +40,20 @@ def bm25_retrieve(
     )
 
     ranked = sorted(
-        zip(filtered_docs, scores),
-        key=lambda x: x[1],
+        zip(filtered_docs, filtered_metadatas, scores),
+        key=lambda x: x[2],
         reverse=True
     )
 
-    top_docs = [
-        doc
-        for doc, score in ranked[:top_k]
+    top_chunks = [
+        RetrievedChunk(
+            content=document,
+            source=metadata.get("source", "Unknown"),
+            chunk_index=metadata.get("chunk_index"),
+        )
+        for document, metadata, score in ranked[:top_k]
     ]
 
-    print("BM25 Source:", source)
     print("BM25 Docs:", len(filtered_docs))
 
-    return top_docs
+    return top_chunks

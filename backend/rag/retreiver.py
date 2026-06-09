@@ -1,7 +1,8 @@
 from rag.embedding import embed_query
+from rag.types import RetrievedChunk
 import chromadb
 
-def  retrieve_document(query:str, source:str):
+def  retrieve_document(query:str):
     client = chromadb.PersistentClient(path="./chroma_db")
 
     collection = client.get_or_create_collection(name="pdf_collection")
@@ -11,15 +12,22 @@ def  retrieve_document(query:str, source:str):
     retrieved = collection.query(
         query_embeddings=[query_embedding],
         n_results=10,
-        where={
-            "source": source
-        }
+        include=["documents", "metadatas"]
     )
 
-    print("Vector Source:", source)
-    print("Retrieved Chunks:", len(retrieved["documents"][0]))
+    documents = retrieved["documents"][0]
+    metadatas = retrieved["metadatas"][0]
 
-    return retrieved["documents"][0]
+    print("Retrieved Chunks:", len(documents))
+
+    return [
+        RetrievedChunk(
+            content=document,
+            source=metadata.get("source", "Unknown"),
+            chunk_index=metadata.get("chunk_index"),
+        )
+        for document, metadata in zip(documents, metadatas)
+    ]
 
     # print(retrieved["metadatas"])
 
